@@ -1,4 +1,5 @@
 require 'split/zscore'
+require 'distribution/math_extension'
 
 # TODO - take out require and implement using file paths?
 
@@ -116,7 +117,7 @@ module Split
       control = experiment.control
       alternative = self
 
-      return 'N/A' if control.name == alternative.name
+      return '~' if control.name == alternative.name
 
       p_a = alternative.conversion_rate(goal)
       p_c = control.conversion_rate(goal)
@@ -125,6 +126,29 @@ module Split
       n_c = control.participant_count
 
       z_score = Split::Zscore.calculate(p_a, n_a, p_c, n_c)
+    end
+
+    def bayesian_score
+      # http://www.evanmiller.org/bayesian-ab-testing.html implemented in ruby
+      # requires the distribution gem from https://github.com/clbustos/distribution (gem 'distribution', require: false)
+      #
+      control = experiment.control
+      alternative = self
+
+      return nil if control.name == alternative.name
+
+      total = 0.0
+    
+      alpha_a = control.completed_count + 1
+      beta_a = control.participant_count - control.completed_count + 1
+      alpha_b = alternative.completed_count + 1
+      beta_b = alternative.participant_count - alternative.completed_count + 1
+    
+      0.upto(alpha_b - 1) do |i|
+        total += Math.exp(Math::Beta.log_beta(alpha_a+i, beta_b+beta_a).first - Math.log(beta_b+i) - Math::Beta.log_beta(1+i, beta_b).first - Math::Beta.log_beta(alpha_a, beta_a).first)
+      end
+        
+      total
     end
 
     def save

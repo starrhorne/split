@@ -42,6 +42,7 @@
           </select>
         </form>
       </th>
+      <th>Bayesian</th>
       <th>Finish</th>
     </tr>
 
@@ -90,6 +91,11 @@
           </div>
         </td>        
         <td>
+          <% if b = alternative.bayesian_score %>
+            <%= "#{ number_to_percentage(b) }%"%>
+          <% end %>
+        </td>
+        <td>
           <% if experiment.has_winner? %>
             <% if experiment.winner.name == alternative.name %>
               Winner
@@ -115,9 +121,10 @@
       <td><%= total_participants %></td>
       <td><%= total_unfinished %></td>
       <td><%= total_completed %></td>
-      <td>N/A</td>
-      <td>N/A</td>
-      <td>N/A</td>
+      <td>&nbsp;</td>
+      <td>&nbsp;</td>
+      <td>&nbsp;</td>
+      <td>&nbsp;</td>
     </tr>
   </table>
 </div>
